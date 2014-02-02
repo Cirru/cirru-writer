@@ -21,4 +21,5 @@ test = (file) ->
   console.log cirru
   fs.writeFileSync codefile, cirru, 'utf8'
 
-test 'indent'
+names.forEach test
+# test 'indent'

@@ -1,5 +1,5 @@
 set
-  add 1
+  add 1 ()
   , x y
-  add 5
-  add 2
+    add 5 ()
+    add 2

@@ -11,12 +11,10 @@ class Token extends Unit
     @caret = opts.caret
 
   format: ->
-    if @text.match /^[\w\d]+$/
+    if @text.match /^[\w\d-><]+$/
       @caret.writeToken @text
     else
       @caret.writeToken (JSON.stringify @text)
-
-  formatInline: ->
-    @format()
+    @caret.setState 'token'
 
 exports.Token = Token

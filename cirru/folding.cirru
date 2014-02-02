@@ -1,11 +1,9 @@
 a ()
 
-b
-  c
+b (c)
 
 d
-  e
-    f
+  e (f)
 
 g
   h

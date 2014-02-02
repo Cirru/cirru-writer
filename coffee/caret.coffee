@@ -3,7 +3,7 @@ class Caret
   constructor: ->
     @buffer = ''
     @indentation = ''
-    @state = undefined
+    @state = 'block'
     @
 
   indent: ->
@@ -25,31 +25,14 @@ class Caret
     @
 
   newline: ->
-    @addBuffer('\n').addBuffer(@indentation)
-    @setState 'newline'
+    @addBuffer('\n')
+    .addBuffer @indentation
 
   writeToken: (text) ->
-    switch @state
-      when 'dollar', 'rightParen', 'token'
+    if @state is 'token'
+      if @buffer[-1..-1][0] isnt ' '
         @addBuffer ' '
-      when 'newline'
-        @addBuffer(', ').setState 'newline'
-    @addBuffer(text).setState 'token'
-
-  writeLeftParen: ->
-    switch @state
-      when 'dollar', 'rightParen', 'token'
-        @addSpace()
-    @addBuffer('(').setState 'leftParen'
-
-  writeRightParen: ->
-    @addBuffer(')').setState 'rightParen'
-
-  writeDollar: ->
-    switch @state
-      when 'dollar', 'rightParen', 'token'
-        @addSpace()
-    @addBuffer('$').setState 'dollar'
+    @addBuffer text
 
   addSpace: ->
     @addBuffer ' '

@@ -20,34 +20,50 @@ class Exp extends Unit
       else
         new Token info
 
+  makeInline: ->
+    simpleJoin = (item) ->
+      if item.isToken
+        item.text
+      else if item.isExp
+        item.list.map simpleJoin
+        .join ' '
+    simpleJoin @
+
   formatInline: ->
-    @caret.writeLeftParen()
-    @list.forEach (item) =>
-      item.formatInline()
-    @caret.writeRightParen()
+    @caret.writeToken @makeInline()
+    @caret.setState 'token'
+
+  formatHead: ->
+    @caret.writeToken "(#{@makeInline()})"
+    @caret.setState 'token'
 
   format: ->
     return if @len() is 0
     [head, body...] = @list
-    head.formatInline()
+    if head.isExp
+      head.formatHead()
+    else
+      head.format()
     indented = no
+
     body.forEach (item) =>
       if item.isExp
-        console.log item.list
-        if item.isEmpty()
-          @caret.newline().writeDollar()
-        else if item.isShort() and item.isLast()
-          @caret.newline().writeDollar()
-          item.getItem(0).format()
-        else if item.isPlain()
-          indented = yes
-          @caret.indent().newline()
-          item.format()
+        if item.isPlain()
+          if indented
+            @caret.newline()
+            item.formatInline()
+          else
+            item.formatHead()
         else
           indented = yes
           @caret.indent().newline()
           item.format()
+          @caret.setState 'block'
       else if item.isToken
+        if indented and @caret.state is 'block'
+          @caret.newline()
+          .writeToken ','
+          @caret.setState 'token'
         item.format()
     @caret.outdent() if indented
 
@@ -69,8 +85,5 @@ class Exp extends Unit
 
   len: ->
     @list.length
-
-  getItem: (index) ->
-    @list[index]
 
 exports.Exp = Exp

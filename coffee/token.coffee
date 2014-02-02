@@ -1,16 +1,22 @@
 
-class Token
+{Unit} = require './unit'
+
+class Token extends Unit
   isExp: no
   isToken: yes
-  constructor: (@text) ->
+  constructor: (opts) ->
+    @parent = opts.parent
+    @text = opts.item
+    @index = opts.index
+    @caret = opts.caret
 
-  format: (caret) ->
+  format: ->
     if @text.match /^[\w\d]+$/
-      caret.writeToken @text
+      @caret.writeToken @text
     else
-      caret.writeToken (JSON.stringify @text)
+      @caret.writeToken (JSON.stringify @text)
 
-  formatInline: (caret) ->
-    @format caret
+  formatInline: ->
+    @format()
 
 exports.Token = Token

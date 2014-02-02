@@ -3,47 +3,55 @@ class Caret
   constructor: ->
     @buffer = ''
     @indentation = ''
-    @state = 'initial'
+    @state = undefined
+    @
 
   indent: ->
     @indentation += '  '
-    @state = 'indent'
+    @
 
   outdent: ->
     @indentation = @indentation[...-2]
-    @state = 'outdent'
+    @
+
+  setState: (name) ->
+    # Avialable states:
+    # newline, token, dollar, leftParen, rightParen
+    @state = name
+    @
+
+  addBuffer: (str) ->
+    @buffer += str
+    @
 
   newline: ->
-    @buffer += '\n'
-    @buffer += @indentation
-    @state = 'newline'
+    @addBuffer('\n').addBuffer(@indentation)
+    @setState 'newline'
 
   writeToken: (text) ->
     switch @state
-      when 'token'
-        @buffer += ' '
-      when 'rightParen'
-        @buffer += ' '
-      when 'outdent'
-        @indent()
-        @newline()
-        @outdent()
-        @buffer += ', '
-        @state = 'newline'
-    @buffer += text
-    @state = 'token'
+      when 'dollar', 'rightParen', 'token'
+        @addBuffer ' '
+      when 'newline'
+        @addBuffer(', ').setState 'newline'
+    @addBuffer(text).setState 'token'
 
   writeLeftParen: ->
     switch @state
-      when 'rightParen'
-        @buffer += ' '
-      when 'token'
-        @buffer += ' '
-    @buffer += '('
-    @state = 'leftParen'
+      when 'dollar', 'rightParen', 'token'
+        @addSpace()
+    @addBuffer('(').setState 'leftParen'
 
   writeRightParen: ->
-    @buffer += ')'
-    @state = 'rightParen'
+    @addBuffer(')').setState 'rightParen'
+
+  writeDollar: ->
+    switch @state
+      when 'dollar', 'rightParen', 'token'
+        @addSpace()
+    @addBuffer('$').setState 'dollar'
+
+  addSpace: ->
+    @addBuffer ' '
 
 exports.Caret = Caret

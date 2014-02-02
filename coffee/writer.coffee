@@ -7,9 +7,13 @@ writer = (data) ->
   data
   .map (line) ->
     caret = new Caret
-    exp = new Exp line
+    exp = new Exp
+      parent: null
+      item: line
+      index: null
+      caret: caret
     
-    exp.format caret
+    exp.format()
     caret.buffer
   .join '\n\n'
 

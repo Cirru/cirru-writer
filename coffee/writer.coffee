@@ -1,31 +1,16 @@
 
-class Token
-  constructor: (text) ->
-
-class Exp
-  constructor: (list) ->
-
-class Caret
-  constructor: ->
-    @buffer = ''
-    @indentation = '  '
-
-  indent: ->
-    @indentation += '  '
-
-  outdent: ->
-    @indentation = @indentation[...-2]
-
-  newline: ->
-    @buffer += '\n'
-    @buffer += @indentation
+{Caret} = require './caret'
+{Token} = require './token'
+{Exp} = require './exp'
 
 writer = (data) ->
-  caret = new Caret
-
   data
   .map (line) ->
-    line
+    caret = new Caret
+    exp = new Exp line
+    
+    exp.format caret
+    caret.buffer
   .join '\n\n'
 
 if exports?

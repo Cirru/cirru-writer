@@ -5,7 +5,7 @@ class Token
   constructor: (@text) ->
 
   format: (caret) ->
-    if @text.match /[\w\d]+/
+    if @text.match /^[\w\d]+$/
       caret.writeToken @text
     else
       caret.writeToken (JSON.stringify @text)

@@ -21,4 +21,4 @@ test = (file) ->
   console.log cirru
   fs.writeFileSync codefile, cirru, 'utf8'
 
-test 'demo'
+test 'unfolding'

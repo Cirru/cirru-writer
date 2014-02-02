@@ -22,28 +22,36 @@ class Exp
     head.formatInline caret
     body.forEach (item) ->
       if item.isExp
-        if item.isPlain()
-          item.formatInline caret
+        if item.isEmpty()
+          caret.writeLeftParen()
+          caret.writeRightParen()
+        else if item.isPlain()
+          caret.indent()
+          caret.newline()
+          item.format caret
+          caret.outdent()
         else
           item.formatBlock caret
       else if item.isToken
         item.format caret
 
   formatBlock: (caret) ->
-    caret.newline()
     caret.indent()
+    caret.newline()
     @format caret
-    caret.state = 'block'
     caret.outdent()
 
   isNested: ->
     if @list.length is 0
-      return false
+      return no
     else
       @list.some (item) ->
         item.isExp
 
   isPlain: ->
     not @isNested()
+
+  isEmpty: ->
+    @list.length is 0
 
 exports.Exp = Exp

@@ -2,18 +2,21 @@
 class Caret
   constructor: ->
     @buffer = ''
-    @indentation = '  '
+    @indentation = ''
     @state = 'initial'
 
   indent: ->
     @indentation += '  '
+    @state = 'indent'
 
   outdent: ->
     @indentation = @indentation[...-2]
+    @state = 'outdent'
 
   newline: ->
     @buffer += '\n'
     @buffer += @indentation
+    @state = 'newline'
 
   writeToken: (text) ->
     switch @state
@@ -21,9 +24,12 @@ class Caret
         @buffer += ' '
       when 'rightParen'
         @buffer += ' '
-      when 'block'
+      when 'outdent'
+        @indent()
         @newline()
+        @outdent()
         @buffer += ', '
+        @state = 'newline'
     @buffer += text
     @state = 'token'
 

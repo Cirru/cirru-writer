@@ -2,6 +2,10 @@ a $
 
 b $ c
 
-d $ e $ f
+d
+  e $ f
 
-g $ h $ i j $ k $
+g
+  h
+    i j
+      k $

@@ -99,12 +99,6 @@ class Exp extends Unit
         item.getFirst().format()
         @caret.setState 'block'
 
-      else if item.is 'exp long nested align last word'
-        console.log item.column(), 'exp long nested align last word'
-        @caret.token '$'
-        item.format()
-        @caret.setState 'block'
-
       else if item.is 'exp plain empty word'
         console.log item.column(), 'exp plain empty word'
         @caret.token '()'

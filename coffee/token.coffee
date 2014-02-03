@@ -22,9 +22,15 @@ class Token extends Unit
   formatHead: ->
     @format()
 
+  makeHead: ->
+    @make()
+
   column: ->
     str = @make()
     str += ' ' while str.length < 20
     str
+
+  makeInline: ->
+    @make()
 
 exports.Token = Token

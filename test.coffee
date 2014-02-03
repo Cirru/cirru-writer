@@ -22,4 +22,4 @@ test = (file) ->
   fs.writeFileSync codefile, cirru, 'utf8'
 
 names.forEach test
-# test 'indent'
+# test 'demo'

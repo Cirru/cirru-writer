@@ -14,22 +14,24 @@ class Exp extends Unit
         parent: @, index: index, item: item, caret: @caret
 
     @indented = no
-
+    
   len: ->
     @list.length
 
   getFirst: ->
     @list[0]
 
+  markIndented: ->
+    @indented = yes
+
   makeInline: ->
     simpleJoin = (item) ->
-      if item.isToken
-        item.text
-      else if item.isExp
-        result = item.list.map (obj) ->
-          simpleJoin obj
-        .join ' '
-        "(#{result})"
+      item.list.map (obj) ->
+        if obj.isToken
+          obj.make()
+        else if item.isExp
+          "(#{simpleJoin obj})"
+      .join ' '
     simpleJoin @
 
   makeHead: ->
@@ -42,82 +44,104 @@ class Exp extends Unit
 
   format: ->
     return if @len() is 0
-    @indented = no
 
-    for item in @list then switch
-
-      when item.is 'token first'
-        console.log item.column(), 'exp first'
+    for item in @list
+      # if item.isExp
+        # console.log item.index, (item.parent.len() - 1), item.is('last')
+      if item.is 'token first'
+        console.log item.column(), 'token first'
         item.format()
         @caret.setState 'word'
 
-      when item.is 'exp first'
+      else if item.is 'exp last empty word'
+        console.log item.column(), 'exp last empty word'
+        @caret.token '$'
+        .setState 'word'
+
+      else if item.is 'exp first'
         console.log item.column(), 'exp first'
         @caret.token item.makeHead()
         .setState 'word'
 
-      when item.is 'exp empty word last'
-        console.log item.column(), 'exp empty'
+      else if item.is 'exp empty word last'
+        console.log item.column(), 'exp empty word last'
         @caret.token '$'
-        @caret.setState 'word'
+        .setState 'word'
 
-      when item.is 'token word'
+      else if item.is 'token word'
         console.log item.column(), 'token word'
         @caret.token item.text
-        @caret.setState 'word'
+        .setState 'word'
 
-      when item.is 'token block'
+      else if item.is 'token block'
         console.log item.column(), 'token block'
         @caret.newline()
         .token ','
         .token item.text
         .setState 'word'
 
-      when item.is 'exp short last indented'
-        console.log item.column(), 'exp short last indented'
-        @caret.newline()
-        .token '$'
-        .token item.getFirst().format()
+      else if item.is 'exp short last word'
+        console.log item.column(), 'exp short last word'
+        @caret.token '$'
+        item.getFirst().format()
         @caret.setState 'word'
 
-      when item.is 'exp short nested align'
+      else if item.is 'exp short nested align'
         console.log item.column(), 'exp short nested align'
-        @caret.token '$'
+        @markIndented()
+        @caret.indent().newline().token '$'
         item.getFirst().format()
         @caret.setState 'block'
 
-      when item.is 'exp plain empty word'
+      else if item.is 'exp short nested indented'
+        console.log item.column(), 'exp short nested indented'
+        @caret.newline().token '$'
+        item.getFirst().format()
+        @caret.setState 'block'
+
+      else if item.is 'exp long nested align last word'
+        console.log item.column(), 'exp long nested align last word'
+        @caret.token '$'
+        item.format()
+        @caret.setState 'block'
+
+      else if item.is 'exp plain empty word'
         console.log item.column(), 'exp plain empty word'
         @caret.token '()'
         .setState 'word'
 
-      when item.is 'exp plain empty block'
+      else if item.is 'exp plain empty block'
         console.log item.column(), 'exp plain empty block'
         @caret.newline()
         .token ','
         .token '()'
         .setState 'word'
 
-      when item.is 'exp plain word'
+      else if item.is 'exp plain last word'
+        console.log item.column(), 'exp plain last word'
+        @caret.token '$'
+        .token item.makeInline()
+        .setState 'word'
+
+      else if item.is 'exp plain word'
         console.log item.column(), 'exp plain word'
         @caret.token item.makeHead()
         .setState 'word'
 
-      when item.is 'exp plain block'
+      else if item.is 'exp plain block'
         console.log item.column(), 'exp plain block'
         @caret.newline()
-        .token ','
-        item.format()
+        .token item.makeInline()
         @caret.setState 'block'
 
-      when item.is 'exp nested align'
+      else if item.is 'exp nested align'
         console.log item.column(), 'exp nested align'
-        @indented = yes
+        @markIndented()
         @caret.indent().newline()
         item.format()
         @caret.setState 'block'
 
-      when item.is 'exp nested indented'
+      else if item.is 'exp nested indented'
         console.log item.column(), 'exp nested indented'
         @caret.newline()
         item.format()

@@ -11,13 +11,13 @@ class Unit
         @list.some (item) -> item.isExp
       plain: => not method.nested()
       first: => @parent.len() > 0 and @index is 0
-      last: => (not method.empty()) and @index is (@parent.len() - 1)
+      last: => @index is (@parent.len() - 1)
       exp: => @isExp
       token: => @isToken
       block: => @caret.state is 'block'
       word: => @caret.state is 'word'
-      indented: => @indented
-      align: => not @indented
+      indented: => @parent.indented
+      align: => not @parent.indented
 
     for key in name.split(' ')
       return no unless method[key]()

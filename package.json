@@ -1,0 +1,22 @@
+{
+  "name": "cirru-writer",
+  "version": "0.0.1",
+  "description": "Convert JSON reprecentation to Cirru code",
+  "main": "src/writer.js",
+  "scripts": {
+    "test": "coffee test.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Cirru/cirru-writer.coffee.git"
+  },
+  "keywords": [
+    "Cirru"
+  ],
+  "author": "jiyinyiyong",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Cirru/cirru-writer.coffee/issues"
+  },
+  "homepage": "https://github.com/Cirru/cirru-writer.coffee"
+}

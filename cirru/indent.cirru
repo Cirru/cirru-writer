@@ -1,6 +1,5 @@
-a
-  b (c)
+a $ b $ c
 
 e f
-  (g)
+  $ g
   h

@@ -10,13 +10,12 @@ class Caret
     @indentation += '  '
     @
 
-  outdent: ->
+  unindent: ->
     @indentation = @indentation[...-2]
     @
 
   setState: (name) ->
-    # Avialable states:
-    # newline, token, dollar, leftParen, rightParen
+    # Avialable: token, block
     @state = name
     @
 
@@ -28,13 +27,10 @@ class Caret
     @addBuffer('\n')
     .addBuffer @indentation
 
-  writeToken: (text) ->
-    if @state is 'token'
-      if @buffer[-1..-1][0] isnt ' '
-        @addBuffer ' '
+  token: (text) ->
+    lastChar = @buffer[@buffer.length - 1]
+    if lastChar? and lastChar isnt ' '
+      @addBuffer ' '
     @addBuffer text
-
-  addSpace: ->
-    @addBuffer ' '
 
 exports.Caret = Caret

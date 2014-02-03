@@ -10,11 +10,21 @@ class Token extends Unit
     @index = opts.index
     @caret = opts.caret
 
-  format: ->
+  make: ->
     if @text.match /^[\w\d-><]+$/
-      @caret.writeToken @text
+      @text
     else
-      @caret.writeToken (JSON.stringify @text)
-    @caret.setState 'token'
+      JSON.stringify @text
+
+  format: ->
+    @caret.token @make()
+
+  formatHead: ->
+    @format()
+
+  column: ->
+    str = @make()
+    str += ' ' while str.length < 20
+    str
 
 exports.Token = Token

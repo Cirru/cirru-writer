@@ -10,80 +10,122 @@ class Exp extends Unit
     @index = opts.index
     @caret = opts.caret
     @list = opts.item.map (item, index) =>
-      info =
-        parent: @
-        index: index
-        item: item
-        caret: @caret
-      if Array.isArray item
-        new Exp info
-      else
-        new Token info
+      new (if Array.isArray item then Exp else Token)
+        parent: @, index: index, item: item, caret: @caret
+
+    @indented = no
+
+  len: ->
+    @list.length
+
+  getFirst: ->
+    @list[0]
 
   makeInline: ->
     simpleJoin = (item) ->
       if item.isToken
         item.text
       else if item.isExp
-        item.list.map simpleJoin
+        result = item.list.map (obj) ->
+          simpleJoin obj
         .join ' '
+        "(#{result})"
     simpleJoin @
 
-  formatInline: ->
-    @caret.writeToken @makeInline()
-    @caret.setState 'token'
+  makeHead: ->
+    "(#{@makeInline()})"
 
-  formatHead: ->
-    @caret.writeToken "(#{@makeInline()})"
-    @caret.setState 'token'
+  column: ->
+    str = @makeInline()
+    str += ' ' while str.length < 20
+    str
 
   format: ->
     return if @len() is 0
-    [head, body...] = @list
-    if head.isExp
-      head.formatHead()
-    else
-      head.format()
-    indented = no
+    @indented = no
 
-    body.forEach (item) =>
-      if item.isExp
-        if item.isPlain()
-          if indented
-            @caret.newline()
-            item.formatInline()
-          else
-            item.formatHead()
-        else
-          indented = yes
-          @caret.indent().newline()
-          item.format()
-          @caret.setState 'block'
-      else if item.isToken
-        if indented and @caret.state is 'block'
-          @caret.newline()
-          .writeToken ','
-          @caret.setState 'token'
+    for item in @list then switch
+
+      when item.is 'token first'
+        console.log item.column(), 'exp first'
         item.format()
-    @caret.outdent() if indented
+        @caret.setState 'word'
 
-  isNested: ->
-    if @isEmpty()
-      return no
-    else
-      @list.some (item) ->
-        item.isExp
+      when item.is 'exp first'
+        console.log item.column(), 'exp first'
+        @caret.token item.makeHead()
+        .setState 'word'
 
-  isPlain: ->
-    not @isNested()
+      when item.is 'exp empty word last'
+        console.log item.column(), 'exp empty'
+        @caret.token '$'
+        @caret.setState 'word'
 
-  isEmpty: ->
-    @len() is 0
+      when item.is 'token word'
+        console.log item.column(), 'token word'
+        @caret.token item.text
+        @caret.setState 'word'
 
-  isShort: ->
-    @len() is 1
+      when item.is 'token block'
+        console.log item.column(), 'token block'
+        @caret.newline()
+        .token ','
+        .token item.text
+        .setState 'word'
 
-  len: ->
-    @list.length
+      when item.is 'exp short last indented'
+        console.log item.column(), 'exp short last indented'
+        @caret.newline()
+        .token '$'
+        .token item.getFirst().format()
+        @caret.setState 'word'
+
+      when item.is 'exp short nested align'
+        console.log item.column(), 'exp short nested align'
+        @caret.token '$'
+        item.getFirst().format()
+        @caret.setState 'block'
+
+      when item.is 'exp plain empty word'
+        console.log item.column(), 'exp plain empty word'
+        @caret.token '()'
+        .setState 'word'
+
+      when item.is 'exp plain empty block'
+        console.log item.column(), 'exp plain empty block'
+        @caret.newline()
+        .token ','
+        .token '()'
+        .setState 'word'
+
+      when item.is 'exp plain word'
+        console.log item.column(), 'exp plain word'
+        @caret.token item.makeHead()
+        .setState 'word'
+
+      when item.is 'exp plain block'
+        console.log item.column(), 'exp plain block'
+        @caret.newline()
+        .token ','
+        item.format()
+        @caret.setState 'block'
+
+      when item.is 'exp nested align'
+        console.log item.column(), 'exp nested align'
+        @indented = yes
+        @caret.indent().newline()
+        item.format()
+        @caret.setState 'block'
+
+      when item.is 'exp nested indented'
+        console.log item.column(), 'exp nested indented'
+        @caret.newline()
+        item.format()
+        @caret.setState 'block'
+
+      else
+        console.log item.column(), '!!! is not recognized'
+
+    @caret.unindent() if @indented
 
 exports.Exp = Exp

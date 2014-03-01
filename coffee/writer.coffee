@@ -3,7 +3,7 @@
 {Token} = require './token'
 {Exp} = require './exp'
 
-writer = (data) ->
+generate = (data) ->
   data
   .map (line) ->
     caret = new Caret
@@ -18,4 +18,4 @@ writer = (data) ->
   .join '\n\n'
 
 if exports?
-  exports.writer = writer
+  exports.generate = generate

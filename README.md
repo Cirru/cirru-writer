@@ -19,9 +19,9 @@ npm install --save cirru-writer
 * `writer`
 
 ```coffee
-{writer} = require 'cirru-writer'
-cirru = writer jsonData
-# writer :: JSON -> String
+{generate} = require 'cirru-writer'
+cirru = generate jsonData
+# generate :: JSON -> String
 ```
 
 ### Future

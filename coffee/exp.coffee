@@ -46,8 +46,6 @@ class Exp extends Unit
     return if @len() is 0
 
     for item in @list
-      # if item.isExp
-        console.log item.index, (item.parent.len() - 1), item.is('last')
       if item.is 'token first'
         # console.log item.column(), 'token first'
         item.format()

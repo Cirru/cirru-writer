@@ -1,6 +1,6 @@
 
 fs = require 'fs'
-{writer} = require './coffee/writer'
+{generate} = require './coffee/writer'
 
 names = [
   'demo'
@@ -10,6 +10,7 @@ names = [
   'parentheses'
   'quote'
   'unfolding'
+  'data'
 ]
 
 test = (file) ->
@@ -17,9 +18,10 @@ test = (file) ->
   jsonfile = "./cirru/#{file}.json"
 
   data = require jsonfile
-  cirru = writer data
-  console.log cirru
+  console.log data
+  cirru = generate data
+  # console.log cirru
   fs.writeFileSync codefile, cirru, 'utf8'
 
 names.forEach test
-# test 'demo'
+test 'demo'

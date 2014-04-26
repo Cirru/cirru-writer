@@ -1,10 +1,10 @@
 {
   "name": "cirru-writer",
-  "version": "0.0.8",
+  "version": "0.0.8-2",
   "description": "Convert JSON representation to Cirru code",
   "main": "src/writer.js",
   "scripts": {
-    "test": "coffee test.coffee"
+    "test": "coffee make.coffee test"
   },
   "repository": {
     "type": "git",

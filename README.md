@@ -2,13 +2,11 @@
 Cirru Writer
 ------
 
-Converts JSON representation to Cirru code.
+Converts Cirru AST (which is in JSON) to formatted Cirru code.
 
 Read [`cirru/`][dir] for demos.
 
 [dir]: https://github.com/Cirru/cirru-writer.coffee/tree/master/cirru
-
-Clone repo and run `npm test` to see if it works fine.
 
 ### Usage
 
@@ -16,20 +14,13 @@ Clone repo and run `npm test` to see if it works fine.
 npm install --save cirru-writer
 ```
 
-* `writer`
+* `generate`
 
 ```coffee
 {generate} = require 'cirru-writer'
-cirru = generate jsonData
+cirru = generate [['cirru']]
 # generate :: JSON -> String
 ```
-
-### Future
-
-AMD is not as nice as CommonJS for modularization,
-so I'm not offering a browser-side version.
-
-But I hope there is a good one in the future.
 
 ### License
 

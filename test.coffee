@@ -10,7 +10,6 @@ names = [
   'parentheses'
   'quote'
   'unfolding'
-  'data'
 ]
 
 test = (file) ->

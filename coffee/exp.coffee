@@ -68,14 +68,14 @@ class Exp extends Unit
 
       else if item.is 'token word'
         # console.log item.column(), 'token word'
-        @caret.token item.text
+        @caret.token item.make()
         .setState 'word'
 
       else if item.is 'token block'
         # console.log item.column(), 'token block'
         @caret.newline()
         .token ','
-        .token item.text
+        .token item.make()
         .setState 'word'
 
       else if item.is 'exp short last word'

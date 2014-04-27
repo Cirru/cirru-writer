@@ -11,7 +11,7 @@ class Token extends Unit
     @caret = opts.caret
 
   make: ->
-    if @text.match /^[\w\d-><\:\.\#\\\/\?]+$/
+    if @text.match(/^[^\s\(\)\$\,]+$/)?
       @text
     else
       JSON.stringify @text

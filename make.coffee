@@ -16,21 +16,15 @@ names = [
   'spaces'
 ]
 
-test = (file) ->
-  codefile = "./cirru/#{file}.cirru"
-  jsonfile = "./cirru/#{file}.json"
-
-  data = require jsonfile
-  console.log data
-  cirru = pretty data
-  # console.log cirru
-  fs.writeFileSync codefile, cirru, 'utf8'
+make = (file) ->
+  ast = require "./ast/#{file}.json"
+  (pretty ast).to "./cirru/#{file}.cirru"
 
 target.test = ->
-  names.forEach test
+  make file for file in names
 
 target.run = ->
-  test 'spaces'
+  make 'spaces'
 
 target.compile = ->
   exec 'coffee -o src/ -bc coffee'

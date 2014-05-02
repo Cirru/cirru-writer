@@ -14,6 +14,7 @@ names = [
   'quote'
   'unfolding'
   'spaces'
+  'html'
 ]
 
 make = (file) ->
@@ -31,7 +32,7 @@ target.test = ->
   make file for file in names
 
 target.run = ->
-  make 'demo'
+  make 'html'
 
 target.compile = ->
   exec 'coffee -o src/ -bc coffee'

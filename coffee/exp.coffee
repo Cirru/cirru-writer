@@ -49,7 +49,7 @@ exports.Exp = Exp = class extends Unit
             else
               @addDollar()
               item.format()
-          return
+          continue
 
         if @_newline
           @addNewline()

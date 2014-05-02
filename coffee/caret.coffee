@@ -1,36 +1,53 @@
 
-class Caret
+exports.Caret = class
   constructor: ->
-    @buffer = ''
-    @indentation = ''
-    @state = 'block'
+    @_buffer = '\n'
+    @_indentation = ''
+    @_needSeperator = no
     @
 
   indent: ->
-    @indentation += '  '
+    @_indentation += '  '
     @
 
   unindent: ->
-    @indentation = @indentation[...-2]
-    @
-
-  setState: (name) ->
-    # Avialable: token, block
-    @state = name
-    @
-
-  _add: (str) ->
-    @buffer += str
+    if @_indentation.length is 0
+      throw new Error '[Cirru Writer] too many unindent'
+    @_indentation = @_indentation[...-2]
     @
 
   newline: ->
-    @_add('\n')
-    ._add @indentation
+    @_buffer += '\n'
+    @_buffer += @_indentation
+    @_needSeperator = no
+    @
 
-  token: (text) ->
-    lastChar = @buffer[@buffer.length - 1]
-    if lastChar? and lastChar isnt ' '
-      @_add ' '
-    @_add text
+  _addSpace: ->
+    @_buffer += ' '
+    @_needSeperator = no
+    @
 
-exports.Caret = Caret
+  _addOpen: ->
+    @_buffer += '\('
+    @_needSeperator = no
+
+  _addClose: ->
+    @_buffer += '\)'
+    @_needSeperator = yes
+
+  _addToken: (text) ->
+    @_buffer += text
+    @_needSeperator = yes
+
+  add: (text) ->
+    if text is '\('
+      @_addSpace() if @_needSeperator
+      @_addOpen()
+    else if text is '\)'
+      @_addClose()
+    else
+      @_addSpace() if @_needSeperator
+      @_addToken text
+
+  get: ->
+    @_buffer

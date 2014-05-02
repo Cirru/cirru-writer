@@ -1,36 +1,27 @@
 
 {Unit} = require './unit'
 
-class Token extends Unit
-  isExp: no
-  isToken: yes
-  constructor: (opts) ->
-    @parent = opts.parent
-    @text = opts.item
-    @index = opts.index
-    @caret = opts.caret
+tokenOnly = /^[^\s\(\)\$\,]+$/
 
-  make: ->
-    if @text.match(/^[^\s\(\)\$\,]+$/)?
-      @text
-    else
-      JSON.stringify @text
+exports.Token = class extends Unit
+
+  constructor: (opts) ->
+    for key in ['parent', 'index', 'caret']
+      @[key] = opts[key]
+
+    @text = opts.item
+
+    @isToken = yes
+
+  getLength: ->
+    @text.length
+
+  _make: ->
+    if @text.match(tokenOnly)? then @text
+    else JSON.stringify @text
 
   format: ->
-    @caret.token @make()
+    @caret.add @_make()
 
-  formatHead: ->
+  formatInline: ->
     @format()
-
-  makeHead: ->
-    @make()
-
-  column: ->
-    str = @make()
-    str += ' ' while str.length < 20
-    str
-
-  makeInline: ->
-    @make()
-
-exports.Token = Token

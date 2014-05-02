@@ -6,17 +6,19 @@ message = '[Cirru Writer] takesnesting arries'
 
 exports.pretty = (data) ->
   throw new Error message unless Array.isArray data
-  ret = data.map (line) ->
+  data
+  .filter (x) ->
+    x.length > 0
+
+  .map (line) ->
     throw new Error message unless Array.isArray line
-    caret = new Caret
     exp = new Exp
       parent: null
       item: line
       index: null
-      caret: caret
+      caret: new Caret
 
     exp.format()
-    caret.buffer
-  .join('\n')
+    exp.caret.get()
 
-  return "\n#{ret}"
+  .join('\n')

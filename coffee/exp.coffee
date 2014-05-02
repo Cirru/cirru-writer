@@ -2,18 +2,26 @@
 {Token} = require './token'
 {Unit} = require './unit'
 
-class Exp extends Unit
-  isExp: yes
-  isToken: no
+exports.Exp = Exp = class extends Unit
   constructor: (opts) ->
-    @parent = opts.parent
-    @index = opts.index
-    @caret = opts.caret
-    @list = opts.item.map (item, index) =>
-      new (if Array.isArray item then Exp else Token)
-        parent: @, index: index, item: item, caret: @caret
+    for key in ['parent', 'index', 'caret']
+      @[key] = opts[key]
 
-    @indented = no
+    @list = opts.item.map (item, index) =>
+      AstNode =
+        if (Array.isArray item) then Exp
+        else Token
+      new AstNode
+        parent: @
+        index: index
+        item: item
+        caret: @caret
+
+    @isToken = no
+
+    @_indented = no
+    @_crowded = no
+    @_newline = yes
 
   getLength: ->
     @list.length
@@ -21,129 +29,89 @@ class Exp extends Unit
   getFirst: ->
     @list[0]
 
-  markIndented: ->
-    @indented = yes
-
-  makeInline: ->
-    simpleJoin = (item) ->
-      item.list.map (obj) ->
-        if obj.isToken
-          obj.make()
-        else if item.isExp
-          "(#{simpleJoin obj})"
-      .join ' '
-    simpleJoin @
-
-  makeHead: ->
-    "(#{@makeInline()})"
-
-  # this is for debugging
-  column: ->
-    str = @makeInline()
-    str += ' ' while str.length < 20
-    str
-
   format: ->
-    return if @getLength() is 0
-
-    for item in @list
-      if item.is 'token first'
-        # console.log item.column(), 'token first'
-        item.format()
-        @caret.setState 'word'
-
-      else if item.is 'exp last empty word'
-        # console.log item.column(), 'exp last empty word'
-        @caret.token '$'
-        .setState 'word'
-
-      else if item.is 'exp first'
-        # console.log item.column(), 'exp first'
-        @caret.token item.makeHead()
-        .setState 'word'
-
-      else if item.is 'exp empty word last'
-        # console.log item.column(), 'exp empty word last'
-        @caret.token '$'
-        .setState 'word'
-
-      else if item.is 'token word'
-        # console.log item.column(), 'token word'
-        @caret.token item.make()
-        .setState 'word'
-
-      else if item.is 'token block'
-        # console.log item.column(), 'token block'
-        @caret.newline()
-        .token ','
-        .token item.make()
-        .setState 'word'
-
-      else if item.is 'exp short last word'
-        # console.log item.column(), 'exp short last word'
-        @caret.token '$'
-        item.getFirst().format()
-        @caret.setState 'word'
-
-      else if item.is 'exp short nested align'
-        # console.log item.column(), 'exp short nested align'
-        @markIndented()
-        @caret.indent().newline().token '$'
-        item.getFirst().format()
-        @caret.setState 'block'
-
-      else if item.is 'exp short nested indented'
-        # console.log item.column(), 'exp short nested indented'
-        @caret.newline().token '$'
-        item.getFirst().format()
-        @caret.setState 'block'
-
-      else if item.is 'exp plain empty word'
-        # console.log item.column(), 'exp plain empty word'
-        @caret.token '()'
-        .setState 'word'
-
-      else if item.is 'exp plain empty block'
-        # console.log item.column(), 'exp plain empty block'
-        @caret.newline()
-        .token ','
-        .token '()'
-        .setState 'word'
-
-      else if item.is 'exp plain last word'
-        # console.log item.column(), 'exp plain last word'
-        @caret.token '$'
-        .token item.makeInline()
-        .setState 'word'
-
-      else if item.is 'exp plain word'
-        # console.log item.column(), 'exp plain word'
-        @caret.token item.makeHead()
-        .setState 'word'
-
-      else if item.is 'exp plain block'
-        # console.log item.column(), 'exp plain block'
-        @caret.newline()
-        .token item.makeInline()
-        @caret.setState 'block'
-
-      else if item.is 'exp nested align'
-        # console.log item.column(), 'exp nested align'
-        @markIndented()
-        @caret.indent().newline()
-        item.format()
-        @caret.setState 'block'
-
-      else if item.is 'exp nested indented'
-        # console.log item.column(), 'exp nested indented'
-        @caret.newline()
-        item.format()
-        @caret.setState 'block'
-
+    for item, index in @list
+      if index is 0
+        @getFirst().formatInline()
+        @_newline = no
       else
-        # console.log item.column(), '!!! is not recognized'
-        throw new Error "[Cirru Writer] not considered: #{item}"
+        if @isLast index
+          if @_newline
+            @addNewline()
+            if item.isToken
+              @addComma()
+              item.format()
+            else
+              item.format()
+          else
+            if item.isToken
+              item.format()
+            else
+              @addDollar()
+              item.format()
+          return
 
-    @caret.unindent() if @indented
+        if @_newline
+          @addNewline()
+          if item.isToken
+            @addComma()
+            item.format()
+          else
+            item.format()
+        else
+          if item.isToken
+            item.format()
+          else
+            if @_crowded
+              @addNewline()
+              item.format()
+              @turnNewline()
+            else
+              if item.isSimple()
+                @caret.add '\('
+                item.format()
+                @caret.add '\)'
+                @_crowded = yes
+              else
+                @addNewline()
+                item.format()
+                @turnNewline()
 
-exports.Exp = Exp
+    if @_indented then @caret.unindent()
+
+  formatInline: ->
+    @caret.add '\('
+    item.formatInline() for item in @list
+    @caret.add '\)'
+
+  isSimple: ->
+    @list.every (item) ->
+      item.isToken and (item.getLength() < 16)
+
+  isLast: (index) ->
+    (index + 1) is @getLength()
+
+  addNewline: ->
+    if not @_indented
+      @caret.indent()
+      @_indented = yes
+    @caret.newline()
+    @_newline = yes
+    @_crowded = off
+
+  addComma: ->
+    @caret.add ','
+    @_newline = off
+    @_crowded = off
+
+  addDollar: ->
+    @caret.add '$'
+    @_newline = off
+    @_crowded = off
+
+  turnNewline: ->
+    if not @_indented
+      @caret.indent()
+      @_indented = yes
+    @_newline = yes
+    @_crowded = yes

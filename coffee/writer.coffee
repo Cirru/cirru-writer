@@ -1,21 +1,22 @@
 
 {Caret} = require './caret'
-{Token} = require './token'
 {Exp} = require './exp'
 
-generate = (data) ->
-  data
-  .map (line) ->
+message = '[Cirru Writer] takesnesting arries'
+
+exports.pretty = (data) ->
+  throw new Error message unless Array.isArray data
+  ret = data.map (line) ->
+    throw new Error message unless Array.isArray line
     caret = new Caret
     exp = new Exp
       parent: null
       item: line
       index: null
       caret: caret
-    
+
     exp.format()
     caret.buffer
-  .join '\n\n'
+  .join('\n')
 
-if exports?
-  exports.generate = generate
+  return "\n#{ret}"

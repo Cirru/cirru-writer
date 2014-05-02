@@ -14,8 +14,8 @@ class Exp extends Unit
         parent: @, index: index, item: item, caret: @caret
 
     @indented = no
-    
-  len: ->
+
+  getLength: ->
     @list.length
 
   getFirst: ->
@@ -37,13 +37,14 @@ class Exp extends Unit
   makeHead: ->
     "(#{@makeInline()})"
 
+  # this is for debugging
   column: ->
     str = @makeInline()
     str += ' ' while str.length < 20
     str
 
   format: ->
-    return if @len() is 0
+    return if @getLength() is 0
 
     for item in @list
       if item.is 'token first'
@@ -141,6 +142,7 @@ class Exp extends Unit
 
       else
         # console.log item.column(), '!!! is not recognized'
+        throw new Error "[Cirru Writer] not considered: #{item}"
 
     @caret.unindent() if @indented
 

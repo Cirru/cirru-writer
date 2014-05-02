@@ -19,18 +19,18 @@ class Caret
     @state = name
     @
 
-  addBuffer: (str) ->
+  _add: (str) ->
     @buffer += str
     @
 
   newline: ->
-    @addBuffer('\n')
-    .addBuffer @indentation
+    @_add('\n')
+    ._add @indentation
 
   token: (text) ->
     lastChar = @buffer[@buffer.length - 1]
     if lastChar? and lastChar isnt ' '
-      @addBuffer ' '
-    @addBuffer text
+      @_add ' '
+    @_add text
 
 exports.Caret = Caret

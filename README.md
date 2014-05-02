@@ -14,12 +14,12 @@ Read [`cirru/`][dir] for demos.
 npm install --save cirru-writer
 ```
 
-* `generate`
+* `pretty`
 
 ```coffee
-{generate} = require 'cirru-writer'
-cirru = generate [['cirru']]
-# generate :: JSON -> String
+{pretty} = require 'cirru-writer'
+cirru = pretty [['cirru']]
+# pretty :: JSON -> String
 ```
 
 ### License

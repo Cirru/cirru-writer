@@ -1,8 +1,9 @@
+#!/usr/bin/env coffee
 
 require 'shelljs/make'
 
 fs = require 'fs'
-{generate} = require './coffee/writer'
+{pretty} = require './coffee/writer'
 
 names = [
   'demo'
@@ -21,7 +22,7 @@ test = (file) ->
 
   data = require jsonfile
   console.log data
-  cirru = generate data
+  cirru = pretty data
   # console.log cirru
   fs.writeFileSync codefile, cirru, 'utf8'
 

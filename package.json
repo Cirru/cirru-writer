@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Cirru/cirru-writer.coffee.git"
+    "url": "git://github.com/Cirru/cirru-writer.git"
   },
   "keywords": [
     "Cirru"
@@ -16,7 +16,7 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Cirru/cirru-writer.coffee/issues"
+    "url": "https://github.com/Cirru/cirru-writer/issues"
   },
-  "homepage": "https://github.com/Cirru/cirru-writer.coffee"
+  "homepage": "https://github.com/Cirru/cirru-writer"
 }

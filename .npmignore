@@ -1,4 +1,6 @@
 
-coffee/
-cirru/
-test.coffee
+/ast
+/cirru
+/test.cirru
+/gulpfile.cirru
+/src

@@ -3,13 +3,14 @@
 
 = writer $ require :./src/writer
 
-= name :demo
+= names $ array :demo :folding :html :indent :line
+  , :parentheses :quote :spaces :unfolding
 
-= sourceCode $ fs.readFileSync (++: :cirru/ name :.cirru)
-= astCode $ fs.readFileSync (++: :ast/ name :.json)
+names.forEach $ \ (name)
+  = sourceCode $ fs.readFileSync (++: :cirru/ name :.cirru) :utf8
+  = astCode $ fs.readFileSync (++: :ast/ name :.json) :utf8
 
-= rendered $ writer.render $ JSON.parse astCode
-
-console.log ":\nresults\n"
-
-console.log rendered
+  = rendered $ writer.render $ JSON.parse astCode
+  if (is (rendered.trim) (sourceCode.trim))
+    do $ console.log ":% % ok" name
+    do $ console.log ":\n--> failed" name ":\n" rendered

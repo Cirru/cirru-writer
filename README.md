@@ -15,37 +15,29 @@ Read [`cirru/`][cirru] for demos of that compiled from [`ast/`][ast].
 npm install --save cirru-writer
 ```
 
-* `pretty`
+* `render`
 
 ```coffee
-{pretty} = require 'cirru-writer'
-cirru = pretty [['cirru']]
-# pretty :: JSON -> String
+{render} = require 'cirru-writer'
+cirru = render [['cirru']]
+# render :: JSON -> String
 ```
 
 ### Development
 
-Read [`make.coffee`][make] before you go deeper.
-
 Run through all tests:
 
 ```bash
-./make.coffee test
-```
-
-Run specified test in the code `target.run`:
-
-```bash
-./make.coffee run
+cirru-script test.cirru
 ```
 
 Compile code before sending to npm:
 
 ```bash
-./make.coffee compile
+# officially gulp is not support CirruScript
+# but by updating node-interpret you may run
+gulp script
 ```
-
-[make]: https://github.com/Cirru/cirru-writer.coffee/tree/master/make.coffee
 
 ### License
 

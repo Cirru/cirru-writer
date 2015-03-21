@@ -98,4 +98,7 @@
             = mode :line
     return buffer
 
+  if (not (ast.every util.isArray))
+    do $ throw $ new Error ":Cirru AST uses nested arrays"
+
   render ast 0 1 false 0 false

@@ -23,8 +23,8 @@
   = decreaseIndent $ \ ()
     = indent $ - indent 1
 
-  = render $ \ (node index len inline level lucky)
-    -- console.log ":--> render" node index len
+  = render $ \ (node index len inline level lucky afterDollar)
+    -- console.log ":--> render" node index len afterDollar
     switch (util.type node)
       :string $ switch mode
         :line
@@ -45,18 +45,18 @@
           increaseIndent
           = noLuckyChild true
           node.forEach $ \ (child i)
-            render child i node.length (is i 0) (+ level 1) true noLuckyChild
+            render child i node.length (is i 0) (+ level 1) noLuckyChild false
             if (util.isArray child)
               do $ = noLuckyChild false
           decreaseIndent
           = mode :line
         :text
-          if (is (+ index 1) len)
+          if (and (is (+ index 1) len) (not afterDollar))
             do
               renderSpan ": $"
               = noLuckyChild true
               node.forEach $ \ (child i)
-                render child i node.length (is i 0) (+ level 1) noLuckyChild
+                render child i node.length (is i 0) (+ level 1) noLuckyChild true
                 if (util.isArray child)
                   do $ = noLuckyChild false
               = mode :line
@@ -65,7 +65,7 @@
                 renderSpan ": ("
                 = mode :start
                 node.forEach $ \ (child i)
-                  render child i node.length (is i 0) (+ level 1) true
+                  render child i node.length (is i 0) (+ level 1) true false
                 renderSpan ":)"
                 = mode :text
               do
@@ -74,7 +74,7 @@
                 increaseIndent
                 = noLuckyChild true
                 node.forEach $ \ (child i)
-                  render child i node.length (is i 0) (+ level 1) noLuckyChild
+                  render child i node.length (is i 0) (+ level 1) noLuckyChild false
                   if (util.isArray child)
                     do $ = noLuckyChild false
                 decreaseIndent
@@ -84,14 +84,14 @@
             renderSpan ":("
             = mode :start
             node.forEach $ \ (child i)
-              render child i node.length true (+ level 1) false
+              render child i node.length true (+ level 1) false false
             renderSpan ":)"
             = mode :text
           do
             increaseIndent
             = noLuckyChild true
             node.forEach $ \ (child i)
-              render child i node.length (is i 0) (+ level 1) true
+              render child i node.length (is i 0) (+ level 1) true false
               if (util.isArray child)
                 do $ = noLuckyChild false
             decreaseIndent
@@ -101,4 +101,4 @@
   if (not (ast.every util.isArray))
     do $ throw $ new Error ":Cirru AST uses nested arrays"
 
-  render ast 0 1 false 0 false
+  render ast 0 1 false 0 false false

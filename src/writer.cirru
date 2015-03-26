@@ -98,7 +98,7 @@
                 do $ = noLuckyChild false
             decreaseIndent
             = mode :line
-    return buffer
+    return $ ++: buffer ":\n"
 
   if (not (ast.every util.isArray))
     do $ throw $ new Error ":Cirru AST uses nested arrays"

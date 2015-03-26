@@ -12,9 +12,8 @@
     = buffer $ ++: buffer text
 
   = renderNewline $ \ ()
+    = buffer $ util.trimRightSpace buffer
     renderSpan ":\n"
-    if (is indent 0)
-      do $ renderSpan ":\n"
     renderSpan $ util.spaces (* indent 2)
 
   = increaseIndent $ \ ()
@@ -23,8 +22,8 @@
   = decreaseIndent $ \ ()
     = indent $ - indent 1
 
-  = render $ \ (node index len inline level lucky afterDollar)
-    -- console.log ":--> render" node index len afterDollar
+  = render $ \ (node parent index inline lucky afterDollar)
+    -- console.log ":--> render" mode index (JSON.stringify node)
     switch (util.type node)
       :string $ switch mode
         :line
@@ -41,22 +40,25 @@
       :array $ switch mode
         :line
           renderNewline
+          if
+            util.isDeep (. parent (- index 1))
+            do $ renderNewline
           = mode :start
           increaseIndent
           = noLuckyChild true
           node.forEach $ \ (child i)
-            render child i node.length (is i 0) (+ level 1) noLuckyChild false
+            render child node i (is i 0) noLuckyChild false
             if (util.isArray child)
               do $ = noLuckyChild false
           decreaseIndent
           = mode :line
         :text
-          if (and (is (+ index 1) len) (not afterDollar))
+          if (and (is (+ index 1) parent.length) (not afterDollar))
             do
               renderSpan ": $"
               = noLuckyChild true
               node.forEach $ \ (child i)
-                render child i node.length (is i 0) (+ level 1) noLuckyChild true
+                render child node i (is i 0) noLuckyChild true
                 if (util.isArray child)
                   do $ = noLuckyChild false
               = mode :line
@@ -65,7 +67,7 @@
                 renderSpan ": ("
                 = mode :start
                 node.forEach $ \ (child i)
-                  render child i node.length (is i 0) (+ level 1) true false
+                  render child node i (is i 0) true false
                 renderSpan ":)"
                 = mode :text
               do
@@ -74,24 +76,24 @@
                 increaseIndent
                 = noLuckyChild true
                 node.forEach $ \ (child i)
-                  render child i node.length (is i 0) (+ level 1) noLuckyChild false
+                  render child node i (is i 0) noLuckyChild false
                   if (util.isArray child)
                     do $ = noLuckyChild false
                 decreaseIndent
                 = mode :line
-        :start $ if (and inline (> level 1))
+        :start $ if (and inline (isnt parent ast))
           do
             renderSpan ":("
             = mode :start
             node.forEach $ \ (child i)
-              render child i node.length true (+ level 1) false false
+              render child node i true false false
             renderSpan ":)"
             = mode :text
           do
             increaseIndent
             = noLuckyChild true
             node.forEach $ \ (child i)
-              render child i node.length (is i 0) (+ level 1) true false
+              render child node i (is i 0) true false
               if (util.isArray child)
                 do $ = noLuckyChild false
             decreaseIndent
@@ -101,4 +103,4 @@
   if (not (ast.every util.isArray))
     do $ throw $ new Error ":Cirru AST uses nested arrays"
 
-  render ast 0 1 false 0 false false
+  render ast (array) 1 false false false

@@ -1,28 +1,31 @@
 
-= util $ require :./util
+var
+  util $ require :./util
+  noLuckyChild
 
 = exports.render $ \ (ast)
 
-  = buffer :
-  = indent -1
-  = mode :line
+  var
+    buffer :
+    indent -1
+    mode :line
 
-  = renderSpan $ \ (text)
-    -- console.log :render :span (JSON.stringify text)
-    = buffer $ ++: buffer text
+    renderSpan $ \ (text)
+      -- console.log :render :span (JSON.stringify text)
+      = buffer $ + buffer text
 
-  = renderNewline $ \ ()
-    = buffer $ util.trimRightSpace buffer
-    renderSpan ":\n"
-    renderSpan $ util.spaces (* indent 2)
+    renderNewline $ \ ()
+      = buffer $ util.trimRightSpace buffer
+      renderSpan ":\n"
+      renderSpan $ util.spaces (* indent 2)
 
-  = increaseIndent $ \ ()
-    = indent $ + indent 1
+    increaseIndent $ \ ()
+      = indent $ + indent 1
 
-  = decreaseIndent $ \ ()
-    = indent $ - indent 1
+    decreaseIndent $ \ ()
+      = indent $ - indent 1
 
-  = render $ \ (node parent index inline lucky afterDollar)
+  var $ render $ \ (node parent index inline lucky afterDollar)
     -- console.log ":--> render" mode index (JSON.stringify node)
     switch (util.type node)
       :string $ switch mode
@@ -98,9 +101,9 @@
                 do $ = noLuckyChild false
             decreaseIndent
             = mode :line
-    return $ ++: buffer ":\n"
+    return $ + buffer ":\n"
 
   if (not (ast.every util.isArray))
     do $ throw $ new Error ":Cirru AST uses nested arrays"
 
-  render ast (array) 1 false false false
+  return $ render ast (array) 1 false false false

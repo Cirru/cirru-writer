@@ -2,5 +2,7 @@
 /ast
 /cirru
 /test.cirru
+/template.cirru
 /gulpfile.cirru
 /src
+/webpack.*

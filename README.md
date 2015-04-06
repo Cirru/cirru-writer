@@ -9,6 +9,8 @@ Read [`cirru/`][cirru] for demos of that compiled from [`ast/`][ast].
 [cirru]: https://github.com/Cirru/cirru-writer.coffee/tree/master/cirru
 [ast]: https://github.com/Cirru/cirru-writer.coffee/tree/master/ast
 
+Demo: http://repo.cirru.org/writer/
+
 ### Usage
 
 ```bash

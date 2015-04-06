@@ -1,5 +1,4 @@
-[[
-  ".begin",
+[
   [
     "define-macro",
     "syntax-rules",
@@ -223,4 +222,4 @@
       ]
     ]
   ]
-]]
+]

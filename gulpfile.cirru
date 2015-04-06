@@ -13,10 +13,10 @@ gulp.task :rsync $ \ (cb)
   wrapper.rsync
     object
       :ssh true
-      :src $ array :index.html :build
+      :src $ array :index.html :build :ast
       :recursive true
       :args $ array :--verbose
-      :dest :tiye:~/repo/workflow/
+      :dest :tiye:~/repo/cirru/writer/
       :deleteAll true
     \ (error stdout stderr cmd)
       if (? error)
@@ -30,9 +30,9 @@ gulp.task :script $ \ ()
     script $ require :gulp-cirru-script
 
   ... gulp
-    :src :src/*.cirru
-    :pipe $ script
-    :pipe $ gulp.dest :lib/
+    src :src/*.cirru
+    pipe $ script
+    pipe $ gulp.dest :lib/
 
 gulp.task :html $ \ (cb)
   var

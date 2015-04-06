@@ -56,6 +56,16 @@ var
           decreaseIndent
           = mode :line
         :text
+          if inline
+            do
+              renderSpan ": ("
+              = mode :start
+              node.forEach $ \ (child i)
+                render child node i (is i 0) true false
+              renderSpan ":)"
+              = mode :text
+              return null
+
           if (and (is (+ index 1) parent.length) (not afterDollar))
             do
               renderSpan ": $"

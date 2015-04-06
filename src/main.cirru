@@ -16,12 +16,10 @@ req.open :GET :./ast/patel.json
 req.send
 
 var $ render $ \ (code)
-  try
-    do
-      var
-        display $ writer.render $ JSON.parse code
-      = compiled.value display
-    err
+  var
+    display $ writer.render $ JSON.parse code
+  = compiled.value display
+  -- err
       var
         message err.message
         stack err.stack

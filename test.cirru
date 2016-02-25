@@ -14,3 +14,4 @@ names.forEach $ \ (name)
   if (is (rendered.trim) (sourceCode.trim))
     do $ console.log ":% % ok" name
     do $ console.log ":\n--> failed" name ":\n" rendered
+  return

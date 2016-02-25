@@ -53,6 +53,7 @@ var
             render child node i (is i 0) noLuckyChild false
             if (util.isArray child)
               do $ = noLuckyChild false
+            return
           decreaseIndent
           = mode :line
         :text
@@ -74,6 +75,7 @@ var
                 render child node i (is i 0) noLuckyChild true
                 if (util.isArray child)
                   do $ = noLuckyChild false
+                return
               = mode :line
             do $ if (and (util.isPlain node) lucky)
               do
@@ -92,6 +94,7 @@ var
                   render child node i (is i 0) noLuckyChild false
                   if (util.isArray child)
                     do $ = noLuckyChild false
+                  return
                 decreaseIndent
                 = mode :line
         :start $ if (and inline (isnt parent ast))
@@ -109,6 +112,7 @@ var
               render child node i (is i 0) true false
               if (util.isArray child)
                 do $ = noLuckyChild false
+              return
             decreaseIndent
             = mode :line
     return $ + buffer ":\n"

@@ -22,9 +22,9 @@ var $ makeSpace $ \ (buffer n)
   return $ theType.toLowerCase
 
 = exports.markToken $ \ (text)
-  if (text.match "/^[^\\\"\\s$\\(\\)]+$")
-    do $ return text
-    do $ return $ JSON.stringify text
+  cond (text.match "/^[^\\\"\\s$\\(\\)]+$")
+    , text
+    JSON.stringify text
 
 = exports.isPlain $ \ (list)
   return $ list.every $ \ (child)
@@ -34,19 +34,17 @@ var $ makeSpace $ \ (buffer n)
   return $ is (exports.type x) :array
 
 = exports.isDeep $ \ (ast)
-  if (Array.isArray ast)
-    do
-      var $ level $ getListLevel ast
-      return $ > level 2
-    do $ return false
+  cond (Array.isArray ast)
+    > (getListLevel ast) 2
+    , false
 
 var $ trimRightSpace $ \ (text)
   var
     end $ - text.length 1
     last $ . text end
-  if (is last ": ")
-    do $ return $ trimRightSpace (text.substr 0 end)
-    do $ return text
+  cond (is last ": ")
+    trimRightSpace (text.substr 0 end)
+    , text
 
 = exports.trimRightSpace $ \ (text)
   return $ trimRightSpace text

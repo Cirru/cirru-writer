@@ -1,5 +1,4 @@
 
-if
-  and $ some?
-  , memory $ let (factory)
+if (and $ some?) (, memory)
+  let (factory)
     swap!

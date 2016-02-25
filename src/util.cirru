@@ -22,7 +22,7 @@ var $ makeSpace $ \ (buffer n)
   return $ theType.toLowerCase
 
 = exports.markToken $ \ (text)
-  cond (text.match "/^[^\\\"\\s$\\(\\)]+$")
+  cond (text.match "/^[^\\\"\\s\\(\\)]+$")
     , text
     JSON.stringify text
 

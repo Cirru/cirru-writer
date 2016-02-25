@@ -1,9 +1,13 @@
 
 var
   util $ require :./util
+  transformer $ require :./transformer
   noLuckyChild
 
 = exports.render $ \ (ast)
+  console.log $ JSON.stringify ast null 2
+  console.log $ JSON.stringify (transformer.insertDollar ast) null 2
+  console.log $ JSON.stringify (transformer.insertComma ast) null 2
 
   var
     buffer :

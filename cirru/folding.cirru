@@ -1,7 +1,5 @@
 
 a $
 b $ c
-d $ e (f)
-g $ h
-  i j
-    k ()
+d $ e $ f
+g $ h $ i j $ k $

@@ -6,28 +6,25 @@ html
       :href b
     link (:rel icon)
       :href a
-    meta (:charset utf-8)
+    meta $ :charset utf-8
 
   body
     #about
       .line
         a (:href a)
           = b
-        span (= " ")
+        span $ = " "
         a (:href a)
           = b
 
-      .line
-        span (= a)
+      .line $ span $ = a
 
-    #list
-      .year (= 2014)
-      .month (= May)
-      .post
-        a.link (:href)
-          =
-
-      .month (= Apr)
-      .post
-        a.link (:href a)
-          = b
+    #list (.year $ = 2014)
+      .month $ = May
+      .post $ a.link
+        :href
+        =
+      .month $ = Apr
+      .post $ a.link
+        :href a
+        = b

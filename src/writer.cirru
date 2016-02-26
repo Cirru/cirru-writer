@@ -34,7 +34,7 @@ var
     decreaseIndent $ \ ()
       = indent $ - indent 1
 
-  var $ render $ \ (node parent index inline lucky)
+  var $ render $ \ (node parent index inline isSecond)
     -- console.log ":--> render" mode index (JSON.stringify node)
     switch (util.type node)
       :string $ switch mode
@@ -54,12 +54,8 @@ var
             do $ renderNewline
           = mode :start
           increaseIndent
-          = noLuckyChild true
           node.forEach $ \ (child i)
-            render child node i (is i 0) noLuckyChild
-            if (util.isArray child)
-              do $ = noLuckyChild false
-            return
+            render child node i (is i 0) (is i 1)
           decreaseIndent
           = mode :line
         :text
@@ -73,7 +69,7 @@ var
               = mode :text
               return null
 
-          if (and (util.isPlain node) lucky)
+          if (and (util.isPlain node) isSecond)
             do
               renderSpan ": ("
               = mode :start
@@ -85,12 +81,8 @@ var
               renderNewline
               = mode :start
               increaseIndent
-              = noLuckyChild true
               node.forEach $ \ (child i)
-                render child node i (is i 0) noLuckyChild
-                if (util.isArray child)
-                  do $ = noLuckyChild false
-                return
+                render child node i (is i 0) (is i 1)
               decreaseIndent
               = mode :line
         :start $ if (and inline (isnt parent ast))
@@ -103,12 +95,8 @@ var
             = mode :text
           do
             increaseIndent
-            = noLuckyChild true
             node.forEach $ \ (child i)
               render child node i (is i 0) true
-              if (util.isArray child)
-                do $ = noLuckyChild false
-              return
             decreaseIndent
             = mode :line
     return $ + buffer ":\n"

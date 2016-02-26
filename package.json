@@ -1,6 +1,6 @@
 {
   "name": "cirru-writer",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Convert JSON representation to Cirru code",
   "main": "lib/writer.js",
   "scripts": {

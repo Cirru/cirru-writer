@@ -27,8 +27,9 @@ var $ makeSpace $ \ (buffer n)
     JSON.stringify text
 
 = exports.isPlain $ \ (list)
-  return $ list.every $ \ (child)
-    return $ is (exports.type child) :string
+  cond (is list.length 0) true
+    list.every $ \ (child)
+      is (exports.type child) :string
 
 = exports.isArray $ \ (x)
   return $ is (exports.type x) :array

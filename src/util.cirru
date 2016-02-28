@@ -1,4 +1,8 @@
 
+var
+  isString $ \ (x)
+    is (typeof x) :string
+
 var $ getListLevel $ \ (list)
   var
     numList $ list.map $ \ (item)
@@ -39,13 +43,7 @@ var $ makeSpace $ \ (buffer n)
     > (getListLevel ast) 2
     , false
 
-var $ trimRightSpace $ \ (text)
-  var
-    end $ - text.length 1
-    last $ . text end
-  cond (is last ": ")
-    trimRightSpace (text.substr 0 end)
-    , text
-
-= exports.trimRightSpace $ \ (text)
-  return $ trimRightSpace text
+= exports.isSmallExpression $ \ (tree)
+  or (is tree.length 0)
+    and (<= tree.length 3)
+      tree.every isString

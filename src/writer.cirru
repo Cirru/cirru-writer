@@ -4,104 +4,104 @@ var
   transformer $ require :./transformer
   noLuckyChild
 
+  isString $ \ (x)
+    is (typeof x) :string
+
+  isArray $ \ (x)
+    Array.isArray x
+
+  textSegment $ \ (token)
+    {} :type :token :data $ util.markToken token
+
+  controlSegment $ \ (op)
+    {} :type :control :data op
+
+  renderInline $ \ (x)
+    cond (isString x) (util.markToken x)
+      ... x
+        map renderInline
+        join ": "
+
+  getTokenOrExpression $ \ (x)
+    cond (isString x) :string :expression
+
+  joinExpressions $ \ (acc tree lastType isLastDeep)
+    cond (is lastType :start)
+      joinExpressions
+        acc.concat
+          textSegment $ renderInline (. tree 0)
+          controlSegment :indent
+        tree.slice 1
+        , :token false
+      cond (is tree.length 0)
+        acc.concat $ controlSegment :unindent
+        bind
+          getTokenOrExpression (. tree 0)
+          \ (thisType)
+            joinExpressions
+              cond (is thisType :string)
+                cond (is lastType :string)
+                  acc.concat (textSegment ": ") (textSegment (. tree 0))
+                  acc.concat (textSegment ":\n") (textSegment (. tree 0))
+                acc.concat
+                  textSegment $ cond isLastDeep ":\n\n" ":\n"
+                  [] (handleExpression . tree 0)
+              tree.slice 1
+              , thisType
+              util.isDeep (. tree 0)
+
+  handleExpression $ \ (tree)
+    tree.map $ \ (item)
+      cond (isString item)
+        textSegment item
+        cond (util.isSmallExpression item)
+          textSegment $ + ":("
+            ... item (map util.markToken) (join ": ")
+            , ":)"
+          joinExpressions ([]) $ tree.map $ \ (child)
+            cond (isString child)
+              util.markToken child
+              handleExpression tree
+            , :start
+
+  joinLines $ \ (acc tree)
+    cond (is tree.length 0) acc
+      joinLines
+        acc.concat
+          textSegment ":\n\n"
+          tree.slice 0 1
+        tree.slice 1
+
+  handleAST $ \ (tree)
+    var
+      lines $ tree.map handleExpression
+    joinLines lines
+
+  flattenSegments $ \ (acc tree)
+    cond (is tree.length 0) acc
+      acc.concat
+        bind (. tree 0) $ \ (cursor)
+          cond (isArray cursor) cursor
+            flattenSegments ([]) cursor
+        tree.slice 1
+
+  stringifySegments $ \ (acc indentation segments)
+    cond (is segments.length 0) acc
+      bind (. segments 0) $ \ (head)
+        stringifySegments
+          + acc $ case head.type
+            :token head.data
+            else :
+          case (is head.type :control)
+            case head.data
+              :indent $ + indentation ": "
+              :unindent $ indentation.slice 1
+            , indentation
+          segments.slice 1
+
 = exports.render $ \ (ast)
-  -- console.log $ JSON.stringify ast null 2
-  -- console.log $ JSON.stringify (transformer.insertDollar ast) null 2
-  -- console.log $ JSON.stringify (transformer.insertComma ast) null 2
-
-  -- console.log $ JSON.stringify (transformer.insertComma ast) null 2
-
-  = ast $ transformer.insertDollar $ transformer.insertComma ast
-  -- console.log $ JSON.stringify ast null 2
-
   var
-    buffer :
-    indent -1
-    mode :line
-
-    renderSpan $ \ (text)
-      -- console.log :render :span (JSON.stringify text)
-      = buffer $ + buffer text
-
-    renderNewline $ \ ()
-      = buffer $ util.trimRightSpace buffer
-      renderSpan ":\n"
-      renderSpan $ util.spaces (* indent 2)
-
-    increaseIndent $ \ ()
-      = indent $ + indent 1
-
-    decreaseIndent $ \ ()
-      = indent $ - indent 1
-
-  var $ render $ \ (node parent index inline isSecond)
-    -- console.log ":--> render" mode index (JSON.stringify node)
-    switch (util.type node)
-      :string $ switch mode
-        :line
-          throw ":No string should be at line after comma inserted!"
-        :text
-          renderSpan ": "
-          renderSpan $ util.markToken node
-        :start
-          renderSpan $ util.markToken node
-          = mode :text
-      :array $ switch mode
-        :line
-          renderNewline
-          if
-            util.isDeep (. parent (- index 1))
-            do $ renderNewline
-          = mode :start
-          increaseIndent
-          node.forEach $ \ (child i)
-            render child node i (is i 0) (is i 1)
-          decreaseIndent
-          = mode :line
-        :text
-          if inline
-            do
-              renderSpan ": ("
-              = mode :start
-              node.forEach $ \ (child i)
-                render child node i (is i 0) true
-              renderSpan ":)"
-              = mode :text
-              return null
-
-          if (and (util.isPlain node) isSecond)
-            do
-              renderSpan ": ("
-              = mode :start
-              node.forEach $ \ (child i)
-                render child node i (is i 0) true
-              renderSpan ":)"
-              = mode :text
-            do
-              renderNewline
-              = mode :start
-              increaseIndent
-              node.forEach $ \ (child i)
-                render child node i (is i 0) (is i 1)
-              decreaseIndent
-              = mode :line
-        :start $ if (and inline (isnt parent ast))
-          do
-            renderSpan ":("
-            = mode :start
-            node.forEach $ \ (child i)
-              render child node i true false
-            renderSpan ":)"
-            = mode :text
-          do
-            increaseIndent
-            node.forEach $ \ (child i)
-              render child node i (is i 0) true
-            decreaseIndent
-            = mode :line
-    return $ + buffer ":\n"
-
-  if (not (ast.every util.isArray))
-    do $ throw $ new Error ":Cirru AST uses nested arrays"
-
-  return $ render ast (array) 1 false false
+    fatAst $ transformer.insertDollar $ transformer.insertComma ast
+    segments $ handleAST fatAst
+    flattened $ flattenSegments ([]) segments
+  stringifySegments : flattened

@@ -22,9 +22,11 @@ var
 
   renderInline $ \ (x)
     cond (isString x) (util.markToken x)
-      ... x
-        map renderInline
-        join ": "
+      + ":("
+        ... x
+          map renderInline
+          join ": "
+        , ":)"
 
   getTokenOrExpression $ \ (x)
     cond (isString x) :string :expression
@@ -46,12 +48,11 @@ var
                 cond (is lastType :string)
                   acc.concat (textSegment ": ") (tokenSegment cursor)
                   acc.concat (controlSegment :newline) (tokenSegment cursor)
-                cond (is lastType :string)
-                  cond (util.isSmallExpression cursor)
-                    acc.concat
-                      textSegment ": ("
-                      textSegment $ renderInline cursor
-                      textSegment ":)"
+                cond
+                  and (is lastType :string) (util.isSmallExpression cursor)
+                  acc.concat
+                    textSegment ": "
+                    textSegment $ renderInline cursor
                   cond isLastDeep
                     acc.concat
                       controlSegment :newline
@@ -112,11 +113,6 @@ var
 = exports.render $ \ (ast)
   var
     fatAst $ transformer.insertDollar $ transformer.insertComma ast
-  console.log fatAst
-  var
     segments $ handleAST fatAst
-  console.log segments
-  var
     flattened $ flattenSegments ([]) segments
-  console.log flattened
   stringifySegments : : flattened

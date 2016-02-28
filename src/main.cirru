@@ -7,7 +7,7 @@ var
 
 require :./layout.css
 
-req.open :GET :./ast/demo.json
+req.open :GET :./ast/html.json
 = req.onload $ \ (res)
   var $ code req.responseText
   = source.value code

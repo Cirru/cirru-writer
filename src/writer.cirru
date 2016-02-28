@@ -2,7 +2,8 @@
 var
   util $ require :./util
   transformer $ require :./transformer
-  noLuckyChild
+
+  bind $ \ (v k) (k v)
 
   isString $ \ (x)
     is (typeof x) :string
@@ -10,8 +11,11 @@ var
   isArray $ \ (x)
     Array.isArray x
 
-  textSegment $ \ (token)
+  tokenSegment $ \ (token)
     {} :type :token :data $ util.markToken token
+
+  textSegment $ \ (token)
+    {} :type :token :data token
 
   controlSegment $ \ (op)
     {} :type :control :data op
@@ -32,57 +36,59 @@ var
           textSegment $ renderInline (. tree 0)
           controlSegment :indent
         tree.slice 1
-        , :token false
+        , :string false
       cond (is tree.length 0)
         acc.concat $ controlSegment :unindent
-        bind
-          getTokenOrExpression (. tree 0)
-          \ (thisType)
+        bind (. tree 0) $ \ (cursor)
+          bind (getTokenOrExpression cursor) $ \ (thisType)
             joinExpressions
               cond (is thisType :string)
                 cond (is lastType :string)
-                  acc.concat (textSegment ": ") (textSegment (. tree 0))
-                  acc.concat (textSegment ":\n") (textSegment (. tree 0))
-                acc.concat
-                  textSegment $ cond isLastDeep ":\n\n" ":\n"
-                  [] (handleExpression . tree 0)
+                  acc.concat (textSegment ": ") (tokenSegment cursor)
+                  acc.concat (controlSegment :newline) (tokenSegment cursor)
+                cond (is lastType :string)
+                  cond (util.isSmallExpression cursor)
+                    acc.concat
+                      textSegment ": ("
+                      textSegment $ renderInline cursor
+                      textSegment ":)"
+                  cond isLastDeep
+                    acc.concat
+                      controlSegment :newline
+                      controlSegment :newline
+                      [] $ handleExpression cursor
+                    acc.concat
+                      controlSegment :newline
+                      [] $ handleExpression cursor
               tree.slice 1
               , thisType
-              util.isDeep (. tree 0)
+              util.isDeep cursor
 
   handleExpression $ \ (tree)
-    tree.map $ \ (item)
-      cond (isString item)
-        textSegment item
-        cond (util.isSmallExpression item)
-          textSegment $ + ":("
-            ... item (map util.markToken) (join ": ")
-            , ":)"
-          joinExpressions ([]) $ tree.map $ \ (child)
-            cond (isString child)
-              util.markToken child
-              handleExpression tree
-            , :start
+    joinExpressions ([]) tree :start false
 
   joinLines $ \ (acc tree)
     cond (is tree.length 0) acc
       joinLines
         acc.concat
-          textSegment ":\n\n"
+          controlSegment :newline
           tree.slice 0 1
+          controlSegment :newline
         tree.slice 1
 
   handleAST $ \ (tree)
     var
       lines $ tree.map handleExpression
-    joinLines lines
+    joinLines ([]) lines
 
   flattenSegments $ \ (acc tree)
     cond (is tree.length 0) acc
-      acc.concat
-        bind (. tree 0) $ \ (cursor)
-          cond (isArray cursor) cursor
-            flattenSegments ([]) cursor
+      flattenSegments
+        acc.concat
+          bind (. tree 0) $ \ (cursor)
+            cond (isArray cursor)
+              flattenSegments ([]) cursor
+              , cursor
         tree.slice 1
 
   stringifySegments $ \ (acc indentation segments)
@@ -91,17 +97,26 @@ var
         stringifySegments
           + acc $ case head.type
             :token head.data
+            :control $ case head.data
+              :newline $ + ":\n" indentation
+              else :
             else :
-          case (is head.type :control)
+          cond (is head.type :control)
             case head.data
-              :indent $ + indentation ": "
-              :unindent $ indentation.slice 1
+              :indent $ + indentation ":  "
+              :unindent $ indentation.slice 2
+              else indentation
             , indentation
           segments.slice 1
 
 = exports.render $ \ (ast)
   var
     fatAst $ transformer.insertDollar $ transformer.insertComma ast
+  console.log fatAst
+  var
     segments $ handleAST fatAst
+  console.log segments
+  var
     flattened $ flattenSegments ([]) segments
-  stringifySegments : flattened
+  console.log flattened
+  stringifySegments : : flattened

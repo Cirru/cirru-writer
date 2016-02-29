@@ -115,4 +115,5 @@ var
     fatAst $ transformer.insertDollar $ transformer.insertComma ast
     segments $ handleAST fatAst
     flattened $ flattenSegments ([]) segments
-  stringifySegments : : flattened
+    result $ stringifySegments : : flattened
+  result.replace (new RegExp ":\\n\\s+\\n" :g) ":\n\n"

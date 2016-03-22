@@ -31,14 +31,28 @@ var
   getTokenOrExpression $ \ (x)
     cond (isString x) :string :expression
 
-  joinExpressions $ \ (acc tree lastType isLastDeep)
+  joinExpressions $ \ (acc tree lastType isLastDeep level)
     cond (is lastType :start)
-      joinExpressions
-        acc.concat
-          textSegment $ renderInline (. tree 0)
-          controlSegment :indent
-        tree.slice 1
-        , :string false
+      cond
+        or
+          isString (. tree 0)
+          util.isSmallExpression (. tree 0)
+          < level 1
+        joinExpressions
+          acc.concat
+            textSegment $ renderInline (. tree 0)
+            controlSegment :indent
+          tree.slice 1
+          , :string false (+ level 1)
+        joinExpressions
+          acc.concat
+            textSegment ":  "
+            controlSegment :indent
+            controlSegment :indent
+            handleExpression (. tree 0) (+ level 1)
+            controlSegment :unindent
+          tree.slice 1
+          , :expression false (+ level 1)
       cond (is tree.length 0)
         acc.concat $ controlSegment :unindent
         bind (. tree 0) $ \ (cursor)
@@ -57,16 +71,17 @@ var
                     acc.concat
                       controlSegment :newline
                       controlSegment :newline
-                      [] $ handleExpression cursor
+                      [] $ handleExpression cursor (+ level 1)
                     acc.concat
                       controlSegment :newline
-                      [] $ handleExpression cursor
+                      [] $ handleExpression cursor (+ level 1)
               tree.slice 1
               , thisType
               util.isDeep cursor
+              + level 1
 
-  handleExpression $ \ (tree)
-    joinExpressions ([]) tree :start false
+  handleExpression $ \ (tree level)
+    joinExpressions ([]) tree :start false level
 
   joinLines $ \ (acc tree)
     cond (is tree.length 0) acc
@@ -79,7 +94,8 @@ var
 
   handleAST $ \ (tree)
     var
-      lines $ tree.map handleExpression
+      lines $ tree.map $ \ (line)
+        handleExpression line 0
     joinLines ([]) lines
 
   flattenSegments $ \ (acc tree)

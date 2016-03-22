@@ -3,7 +3,7 @@ var
   fs $ require :fs
   writer $ require :./src/writer
   names $ array :demo :folding :html :indent :line
-    , :parentheses :quote :spaces :unfolding :inline-let
+    , :parentheses :quote :spaces :unfolding :inline-let :let
 
 names.forEach $ \ (name)
   var

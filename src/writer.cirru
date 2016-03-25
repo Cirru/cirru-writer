@@ -48,9 +48,7 @@ var
           acc.concat
             textSegment ":  "
             controlSegment :indent
-            controlSegment :indent
             handleExpression (. tree 0) (+ level 1)
-            controlSegment :unindent
           tree.slice 1
           , :expression false (+ level 1)
       cond (is tree.length 0)

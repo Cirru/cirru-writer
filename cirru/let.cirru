@@ -1,6 +1,7 @@
 
 let
-    a $ b c
-    d e
-    d e
-  f
+    a $ b (d)
+      e
+    f g
+
+  g

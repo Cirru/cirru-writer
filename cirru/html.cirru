@@ -1,4 +1,3 @@
-
 doctype
 
 html
@@ -19,7 +18,7 @@ html
         a (:href a)
           = b
 
-      .line $ span $ = a
+      .line $ span (= a)
 
     #list
       .year $ = 2014

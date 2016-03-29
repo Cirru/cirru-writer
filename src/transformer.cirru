@@ -43,27 +43,28 @@ var
     tree.map $ \ (line)
       transformComma ([]) ([]) line true
 
-  upDollar $ \ (head)
+  upDollar $ \ (head usingDollar)
     cond (isString head) head
-      transformDollar ([]) head true 0
+      transformDollar ([]) head true 0 usingDollar
 
-  transformDollar $ \ (acc tree isLastInline index)
+  transformDollar $ \ (acc tree isLastInline index usingDollar)
     case tree.length
       0 acc
       1 $ bind (. tree 0) $ \ (head)
         cond
-          and isLastInline (> index 0) (Array.isArray head)
-          acc.concat :$ (upDollar head)
-          acc.concat $ [] $ upDollar head
+          and isLastInline (> index 0) (Array.isArray head) (not usingDollar)
+          acc.concat :$ (upDollar head true)
+          acc.concat $ [] $ upDollar head false
       else $ transformDollar
-        acc.concat $ [] $ upDollar (. tree 0)
+        acc.concat $ [] $ upDollar (. tree 0) false
         tree.slice 1
         isString $ . tree 0
         + index 1
+        , usingDollar
 
   insertDollar $ \ (tree)
     tree.map $ \ (line)
-      transformDollar ([]) line true 0
+      transformDollar ([]) line true 0 false
 
 = exports.insertComma insertComma
 = exports.insertDollar insertDollar

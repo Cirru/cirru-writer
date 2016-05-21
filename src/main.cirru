@@ -7,7 +7,7 @@ var
 
 require :./layout.css
 
-req.open :GET :./ast/let.json
+req.open :GET :./ast/cond.json
 = req.onload $ \ (res)
   var $ code req.responseText
   = source.value code

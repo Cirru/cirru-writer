@@ -1,10 +1,11 @@
 {
   "name": "cirru-writer",
-  "version": "0.3.9",
+  "version": "0.3.11",
   "description": "Convert JSON representation to Cirru code",
   "main": "lib/writer.js",
   "scripts": {
-    "test": "cirru-script test.cirru"
+    "test": "cirru-script test.cirru",
+    "prepublish": "gulp script"
   },
   "author": "jiyinyiyong",
   "license": "MIT",

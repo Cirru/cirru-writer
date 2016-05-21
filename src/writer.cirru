@@ -34,7 +34,7 @@ var
   joinExpressions $ \ (acc tree lastType isLastDeep level)
     cond (is lastType :start)
       cond
-        or
+        or isLastDeep
           isString (. tree 0)
           util.isSmallExpression (. tree 0)
           < level 1
@@ -48,7 +48,7 @@ var
           acc.concat
             textSegment ":  "
             controlSegment :indent
-            handleExpression (. tree 0) (+ level 1)
+            handleExpression (. tree 0) isLastDeep (+ level 1)
           tree.slice 1
           , :expression false (+ level 1)
       cond (is tree.length 0)
@@ -69,17 +69,17 @@ var
                     acc.concat
                       controlSegment :newline
                       controlSegment :newline
-                      [] $ handleExpression cursor (+ level 1)
+                      [] $ handleExpression cursor isLastDeep (+ level 1)
                     acc.concat
                       controlSegment :newline
-                      [] $ handleExpression cursor (+ level 1)
+                      [] $ handleExpression cursor isLastDeep (+ level 1)
               tree.slice 1
               , thisType
               util.isDeep cursor
               + level 1
 
-  handleExpression $ \ (tree level)
-    joinExpressions ([]) tree :start false level
+  handleExpression $ \ (tree isLastDeep level)
+    joinExpressions ([]) tree :start isLastDeep level
 
   joinLines $ \ (acc tree)
     cond (is tree.length 0) acc
@@ -93,7 +93,7 @@ var
   handleAST $ \ (tree)
     var
       lines $ tree.map $ \ (line)
-        handleExpression line 0
+        handleExpression line false 0
     joinLines ([]) lines
 
   flattenSegments $ \ (acc tree)
